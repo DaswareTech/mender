@@ -177,6 +177,7 @@ func (p *partitions) getAndCacheActivePartition(rootChecker func(system.StatComm
 			resolvedLink = p.rootfsPartA
 		} else if strings.Contains(p.rootfsPartB, resolvedLink) {
 			resolvedLink = p.rootfsPartB
+		}
 
 		if rootChecker(p, resolvedLink, rootDevice) {
 			p.active = resolvedLink
