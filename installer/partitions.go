@@ -170,11 +170,20 @@ func (p *partitions) getAndCacheActivePartition(rootChecker func(system.StatComm
 
 	// First check if mountCandidate matches rootDevice
 	if mountCandidate != "" {
-		if rootChecker(p, mountCandidate, rootDevice) {
-			p.active = mountCandidate
+
+		// Resolve link
+		resolvedLink := maybeResolveLink(mountCandidate)
+		if strings.Contains(p.rootfsPartA, resolvedLink) {
+			resolvedLink = p.rootfsPartA
+		} else if strings.Contains(p.rootfsPartB, resolvedLink) {
+			resolvedLink = p.rootfsPartB
+
+		if rootChecker(p, resolvedLink, rootDevice) {
+			p.active = resolvedLink
 			log.Debugf("Setting active partition from mount candidate: %s", p.active)
 			return p.active, nil
 		}
+
 		// If mount candidate does not match root device check if we have a match in ENV
 		if checkBootEnvAndRootPartitionMatch(bootEnvBootPart, mountCandidate) {
 			p.active = mountCandidate
@@ -242,8 +251,8 @@ func maybeResolveLink(unresolvedPath string) string {
 	}
 	// MEN-2302
 	// Only resolve /dev/disk/by-partuuid/
-	if path.Dir(unresolvedPath) == "/dev/disk/by-partuuid" {
-		return resolvedPath
-	}
-	return unresolvedPath
+	//if path.Dir(unresolvedPath) == "/dev/disk/by-partuuid" {
+	return resolvedPath
+	//}
+	//return unresolvedPath
 }
